@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 
 #ignore .bin model files and .sqlite files
+.old_application_log_files/
