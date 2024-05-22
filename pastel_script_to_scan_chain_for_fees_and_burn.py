@@ -36,7 +36,7 @@ def get_local_rpc_settings_func(directory_with_pastel_conf=os.path.expanduser("~
         lines = f.readlines()
     other_flags = {}
     rpchost = '127.0.0.1'
-    rpcport = '19932'
+    rpcport = '9932'
     for line in lines:
         if line.startswith('rpcport'):
             value = line.split('=')[1]
@@ -237,7 +237,7 @@ async def main():
         pbar.close()
         return total_coins_burned_by_sending_address_dict
 
-    use_testnet = 1
+    use_testnet = 0
     if use_testnet:
         burn_address = 'tPpasteLBurnAddressXXXXXXXXXXX3wy7u'
         url_string = f'https://explorer-testnet-api.pastel.network/v1/addresses/{burn_address}'
@@ -251,14 +251,16 @@ async def main():
     burn_address_balance = float(address_data_dict['incomingSum'])
     log.info(f'Burn address balance for {burn_address}: {burn_address_balance:,.2f}')
     
-    use_get_coin_burn_by_sending_address = 0
+    use_get_coin_burn_by_sending_address = 1
+    total_coins_burned_by_sending_address_dict = {}  # Initialize the dictionary
+
     if use_get_coin_burn_by_sending_address:
         try:
             burn_txids_df = await get_csv_of_burn_txids_from_explorer_func(use_testnet)
             total_coins_burned_by_sending_address_dict = await determine_total_coins_burned_by_sending_address_func(burn_txids_df)
         except Exception as e:
             log.error(f"Error occurred while getting total coins burned by sending address: {e}")
-        
+
     try:        
         file_name_for_total_coins_burned_by_sending_address_dict = 'total_coins_burned_by_sending_address_dict.csv'
         pd.DataFrame.from_dict(total_coins_burned_by_sending_address_dict, orient='index').to_csv(file_name_for_total_coins_burned_by_sending_address_dict, header=['total_psl_burned'], index_label='sending_address')
